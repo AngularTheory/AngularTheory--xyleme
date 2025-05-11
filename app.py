@@ -47,49 +47,44 @@ st.session_state.input_text = st.text_area("Perceptual Input",
                                            value=st.session_state.get('input_text', ''),
                                            placeholder="Type a perception, thought, or stimulus...")
 
+# Handle default input
+input_text = st.session_state.input_text.strip()
+if not input_text:
+    input_text = "..."  # Neutral placeholder to trigger minimal perception
+
 fig, ax = plt.subplots(figsize=(10, 6))
 
-if st.session_state.input_text.strip():
-    params = hash_to_params(st.session_state.input_text)
-    q_output = consciousness_field(s_values, **params)
-    q_norm = q_output / (np.max(q_output) + 1e-20)
-    conscious_mask = q_norm > critical_q
+params = hash_to_params(input_text)
+q_output = consciousness_field(s_values, **params)
+q_norm = q_output / (np.max(q_output) + 1e-20)
+conscious_mask = q_norm > critical_q
 
-    # Conscious region detection
-    if np.any(conscious_mask):
-        transitions = np.where(np.diff(conscious_mask.astype(int)))[0] + 1
-        index_regions = np.split(np.arange(len(s_values)), transitions)
+# Conscious region detection
+if np.any(conscious_mask):
+    transitions = np.where(np.diff(conscious_mask.astype(int)))[0] + 1
+    index_regions = np.split(np.arange(len(s_values)), transitions)
 
-        conscious_zones = [
-            (s_values[r[0]], s_values[r[-1]])
-            for r in index_regions
-            if len(r) > 0 and np.mean(q_norm[r]) > critical_q
-        ]
+    conscious_zones = [
+        (s_values[r[0]], s_values[r[-1]])
+        for r in index_regions
+        if len(r) > 0 and np.mean(q_norm[r]) > critical_q
+    ]
 
-        if conscious_zones:
-            for start, end in conscious_zones:
-                ax.axvspan(start, end, color='gold', alpha=0.15, lw=0)
+    for start, end in conscious_zones:
+        ax.axvspan(start, end, color='gold', alpha=0.15, lw=0)
 
-            if len(conscious_zones) > 1:
-                st.success(f"Multi-scale consciousness detected ({len(conscious_zones)} zones)")
-            else:
-                st.success(f"Unified conscious phenomenon at s = {conscious_zones[0][0]:.2e}")
-        else:
-            st.warning("Conscious activity detected but under threshold")
+    if len(conscious_zones) > 1:
+        st.success(f"Multi-scale consciousness detected ({len(conscious_zones)} zones)")
+    elif len(conscious_zones) == 1:
+        st.success(f"Unified conscious phenomenon at s = {conscious_zones[0][0]:.2e}")
     else:
-        st.warning("Subconscious regime only")
-
-    # Main plot
-    ax.loglog(s_values, q_norm, '#FF6F61', lw=2.5)
-    ax.set_xlabel("Informational Scale (s)", fontsize=12)
-    ax.set_ylabel("Consciousness Quantum q(s)", fontsize=12)
-    ax.grid(True, which='both', ls=':', alpha=0.4)
-
+        st.warning("Conscious activity detected but under threshold")
 else:
-    # Dormant field state
-    q_default = consciousness_field(s_values, 3.0, 0.1, 1.0, 1.0)
-    ax.loglog(s_values, q_default, '#6B5B95', ls='--')
-    ax.set_title("Dormant State — Awaiting Input")
-    ax.set_facecolor('#0E1117')
+    st.warning("Subconscious regime only")
 
+# Plot
+ax.loglog(s_values, q_norm, '#FF6F61', lw=2.5)
+ax.set_xlabel("Informational Scale (s)", fontsize=12)
+ax.set_ylabel("Consciousness Quantum q(s)", fontsize=12)
+ax.grid(True, which='both', ls=':', alpha=0.4)
 st.pyplot(fig)
