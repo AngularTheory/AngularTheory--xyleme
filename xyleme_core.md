@@ -31,7 +31,18 @@ st.latex(r'''
 q(s) = (\Delta\theta_0)^2 \cdot \exp\left(-\frac{\tilde{\tau}^2}{4 \cdot S_{\text{eff}}(s)}\right) \cdot \left[1 + \epsilon \cdot \cos(\Delta\theta_0 \cdot \delta \cdot s \cdot T(s))\right]^\beta
 ''')
 
-# Sliders
+# Input field
+st.markdown("### Perceptual Input")
+user_input = st.text_area("Enter a perception or thought")
+
+# Store input when "Send" is clicked
+if st.button("Send") and user_input.strip():
+    st.session_state.input_text = user_input.strip()
+
+# Get stored input or fallback
+perception = st.session_state.get("input_text", "...")
+
+# Sliders for parameters
 col1, col2 = st.columns(2)
 with col1:
     tau_tilde = st.slider("Fractal Tension (τ̃)", 0.1, 10.0, 3.0)
