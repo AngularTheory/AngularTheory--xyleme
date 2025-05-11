@@ -1,8 +1,13 @@
-import streamlit as st
+# Optional user input for cognitive stimulation
+st.markdown("---")
+st.markdown("### Stimulate the Xyleme Core with a perception (textual or emotional input)")
 
-st.set_page_config(page_title="∆xylème Core", layout="centered")
+user_input = st.text_area("Symbolic Input", placeholder="Type something meaningful...")
 
-st.markdown("## ∆xylème — Cœur Algorithmique")
-st.markdown("### Équation pivot C∆GE (forme symbolique)")
-
-st.latex(r"m(s) = m_e \cdot (\Delta\theta_0)^2 \cdot \exp\left[ -\frac{\tilde{\tau}^2}{4 \cdot S_\text{eff}(s)} \right] \cdot \left[ 1 + \varepsilon \cdot \cos(\Delta\theta_0 \cdot \delta \cdot s \cdot T(s)) \right]^\beta")
+if st.button("Stimulate ∆xylème"):
+    if user_input.strip():
+        st.markdown(f"**∆τ response**: {np.abs(hash(user_input)) % 1000:.3f}")
+        st.markdown(f"**Decision**: `EXPLORE`")
+        st.markdown(f"**Internal Epoch**: `0`")
+    else:
+        st.warning("Input is empty. Please enter a perception or stimulus.")
